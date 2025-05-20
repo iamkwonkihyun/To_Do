@@ -29,6 +29,7 @@ ls      | todo 리스트를 보여줍니다
 add     | todo를 추가합니다
 del     | todo를 삭제합니다
 del -a  | 모든 todo를 삭제합니다
+done    | 할 일의 상태를 완료로 변경합니다
 exit    | 프로그램을 종료합니다""")
 
 def ls():
@@ -61,6 +62,7 @@ def delete(todo_number:int, all:bool=False):
             print("[-] 모든 todo를 삭제하였습니다")
         except Exception as e:
             print("[!] 오류발생", e)
+            traceback.print_exc()
     else:
         try:
             todos.pop(todo_number - 1)
@@ -68,6 +70,7 @@ def delete(todo_number:int, all:bool=False):
             print("[-] todo를 삭제하였습니다")
         except Exception as e:
             print("[!] 오류발생", e)
+            traceback.print_exc()
 
 def done(todo_number):
     try:
@@ -77,6 +80,7 @@ def done(todo_number):
         print("[+] 상태를 변경하였습니다")
     except Exception as e:
         print("[!] 오류발생", e)
+        traceback.print_exc()
 
 def exit():
     sys.exit()
