@@ -2,3 +2,5 @@
 *.pyc
 
 .requirements_installed
+
+storage.json
