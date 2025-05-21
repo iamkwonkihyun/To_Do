@@ -17,9 +17,11 @@ def main():
             add(user_input[4:])
         elif user_input.startswith("del "):
             if user_input[4:] == "-a":
-                delete(todo_number=0, all=True)
+                delete(todo_number=0, all=True, done=False)
+            elif user_input[4:] == "-d":
+                delete(todo_number=0, all=False, done=True)
             else:
-                delete(int(user_input[4:]))
+                delete(todo_number=int(user_input[4:]))
         elif user_input.startswith("done "):
             done(int(user_input[4:]))
         elif user_input in commands:
