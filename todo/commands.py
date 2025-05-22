@@ -27,18 +27,18 @@ def save_todo(todo:list):
 
 
 def greeting():
-    print("Hi! Nice to meet you!")
+    print("Hi! Nice to meet you! if you need help, use the \"help\" command")
 
 
 def help():
-    print("""hi      | 인사를 합니다
-ls      | todo 리스트를 보여줍니다
-add     | todo를 추가합니다
-del     | todo를 삭제합니다
-del -a  | 모든 todo를 삭제합니다
-del -d  | 완료한 todo만 삭제합니다
-done    | 할 일의 상태를 완료로 변경합니다
-exit    | 프로그램을 종료합니다""")
+    print("""hi      | 인사를 해줍니다 ( hi )
+ls      | todo 리스트를 보여줍니다 ( ls )
+add     | todo를 추가합니다 ( add <todo> )
+del     | todo를 삭제합니다 ( del <todo> )
+del -a  | 모든 todo를 삭제합니다 ( del -a )
+del -d  | 완료한 todo만 삭제합니다 ( del -d )
+done    | 할 일의 상태를 완료로 변경합니다 ( done <todo> )
+exit    | 프로그램을 종료합니다 ( exit )""")
 
 
 def ls():
@@ -63,8 +63,12 @@ def add(todo:list):
         error_func(e)   
 
 
-def delete(todo_num:int, all:bool=False, done:bool=False):
+def delete(todo:str, all:bool=False, done:bool=False):
     todos = load_todo()
+    
+    if todo.isdigit():
+        todo = int(todo)
+    
     if all:
         try:
             todos.clear()
@@ -74,30 +78,48 @@ def delete(todo_num:int, all:bool=False, done:bool=False):
             error_func(e)
     elif done:
         try:
-            print(len(todos))
             todos = [todo for todo in todos if not todo["done"]]
             save_todo(todos)
             print("[-] 완료된 todo를 삭제하였습니다")
         except Exception as e:
             error_func(e)
     else:
-        try:
-            todos.pop(todo_num - 1)
-            save_todo(todos)
-            print("[-] todo를 삭제하였습니다")
-        except Exception as e:
-            error_func(e)
+        if isinstance(todo, int):
+            try:
+                todos.pop(todo - 1)
+                save_todo(todos)
+                print("[-] todo를 삭제하였습니다")
+            except Exception as e:
+                error_func(e)
+        elif isinstance(todo, str):
+            try:
+                todos = [item for item in todos if item["task"] != todo]
+                save_todo(todos)
+                print("[-] todo를 삭제하였습니다")
+            except Exception as e:
+                error_func(e)
 
 
-def done(todo_num:int):
+def done(todo:str):
+    todos = load_todo()
+    
+    if todo.isdigit():
+        todo = int(todo)
+
     try:
-        todos = load_todo()
-        if todos[todo_num - 1]["done"]:
-            todos[todo_num - 1]["done"] = False
+        if isinstance(todo, int) and 0 <= todo - 1 < len(todos):
+            todos[todo - 1]["done"] = not todos[todo - 1]["done"]
+            save_todo(todos)
+            print("[+] 상태를 변경하였습니다")
+        elif isinstance(todo, str):
+            for item in todos:
+                if item["task"] == todo:
+                    item["done"] = not item["done"]
+                    break
+                save_todo(todos)
+                print("[+] 상태를 변경하였습니다")
         else:
-            todos[todo_num - 1]["done"] = True
-        save_todo(todos)
-        print("[+] 상태를 변경하였습니다")
+            print("[!] 잘못된 값입니다")
     except Exception as e:
         error_func(e)
 

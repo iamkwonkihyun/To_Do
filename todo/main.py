@@ -13,18 +13,19 @@ commands = {
 
 def main():
     while True:
-        user_input = input("todo$ ").strip()
-        if user_input.startswith("add "):
-            add(user_input[4:])
-        elif user_input.startswith("del "):
-            if user_input[4:] == "-a":
-                delete(todo_number=0, all=True, done=False)
-            elif user_input[4:] == "-d":
-                delete(todo_number=0, all=False, done=True)
+        user_input = input("todo$ ")
+        cmd, _, value = user_input.partition(" ")
+        if cmd == "add":
+            add(value)
+        elif cmd == "del":
+            if value == "-a":
+                delete(todo="0", all=True, done=False)
+            elif value == "-d":
+                delete(todo="0", all=False, done=True)
             else:
-                delete(todo_number=int(user_input[4:]))
-        elif user_input.startswith("done "):
-            done(int(user_input[4:]))
+                delete(todo=value)
+        elif cmd == "done":
+            done(value)
         elif user_input in commands:
             commands[user_input]()
         else:
