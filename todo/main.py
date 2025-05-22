@@ -1,4 +1,4 @@
-from todo.commands import greeting, ls, add, delete, exit, help, done
+from todo.commands import greeting, ls, add, delete, exit, help, done, clear
 
 commands = {
     "hi": greeting, 
@@ -8,11 +8,12 @@ commands = {
     "exit": exit,
     "help": help,
     "done": done,
+    "clear": clear,
 }
 
 def main():
     while True:
-        user_input = input(">>> ").strip()
+        user_input = input("todo$ ").strip()
         if user_input.startswith("add "):
             add(user_input[4:])
         elif user_input.startswith("del "):

@@ -9,6 +9,7 @@ def error_func(e):
     print("[!] 오류발생", e)
     traceback.print_exc()
 
+
 def load_todo():
     if os.path.exists(STORAGE_FILE):
         with open(STORAGE_FILE, "r", encoding="utf-8") as f:
@@ -19,13 +20,15 @@ def load_todo():
     else:
         return []
 
-def save_todo(todo):
+
+def save_todo(todo:list):
     with open(STORAGE_FILE, "w", encoding="utf-8") as f:
         json.dump(todo, f, ensure_ascii=False, indent=2)
 
 
 def greeting():
     print("Hi! Nice to meet you!")
+
 
 def help():
     print("""hi      | 인사를 합니다
@@ -36,6 +39,7 @@ del -a  | 모든 todo를 삭제합니다
 del -d  | 완료한 todo만 삭제합니다
 done    | 할 일의 상태를 완료로 변경합니다
 exit    | 프로그램을 종료합니다""")
+
 
 def ls():
     todos = load_todo()
@@ -48,7 +52,8 @@ def ls():
     else:
         print("[!] todo가 없습니다")
 
-def add(todo):
+
+def add(todo:list):
     try:
         todos = load_todo()
         todos.append({"task": todo, "done": False})
@@ -57,7 +62,8 @@ def add(todo):
     except Exception as e:
         error_func(e)   
 
-def delete(todo_number:int, all:bool=False, done:bool=False):
+
+def delete(todo_num:int, all:bool=False, done:bool=False):
     todos = load_todo()
     if all:
         try:
@@ -76,23 +82,29 @@ def delete(todo_number:int, all:bool=False, done:bool=False):
             error_func(e)
     else:
         try:
-            todos.pop(todo_number - 1)
+            todos.pop(todo_num - 1)
             save_todo(todos)
             print("[-] todo를 삭제하였습니다")
         except Exception as e:
             error_func(e)
 
-def done(todo_number):
+
+def done(todo_num:int):
     try:
         todos = load_todo()
-        if todos[todo_number - 1]["done"]:
-            todos[todo_number - 1]["done"] = False
+        if todos[todo_num - 1]["done"]:
+            todos[todo_num - 1]["done"] = False
         else:
-            todos[todo_number - 1]["done"] = True
+            todos[todo_num - 1]["done"] = True
         save_todo(todos)
         print("[+] 상태를 변경하였습니다")
     except Exception as e:
         error_func(e)
 
+
 def exit():
     sys.exit()
+
+
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')
