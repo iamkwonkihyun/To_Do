@@ -2,12 +2,31 @@ import os
 import sys
 import json
 import traceback
+import logging
 
+LOG_FOLDER = "logs"
 STORAGE_FILE = "todo/storage.json"
 
-def error_func(e):
-    print("[!] 오류발생", e)
-    traceback.print_exc()
+def make_log():
+    os.makedirs(LOG_FOLDER, exist_ok=True)
+
+    log_file = os.path.join(LOG_FOLDER, "app.log")
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # 중복 핸들러 방지
+    if not logger.handlers:
+        file_handler = logging.FileHandler(log_file)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+
+
+def error_func():
+    print("[!] 오류발생")
+    logging.error(traceback.format_exc())
 
 
 def load_todo():
@@ -59,11 +78,12 @@ def add(todo:list):
         todos.append({"task": todo, "done": False})
         save_todo(todos)
         print("[+] todo를 추가했습니다")
-    except Exception as e:
-        error_func(e)   
+    except:
+        error_func()   
 
 
 def delete(todo:str, all:bool=False, done:bool=False):
+    # del 없는 todo 지우려고 할 때 [!] todo가 없습니다 뜨게 로직 바꾸기
     todos = load_todo()
     
     if todo.isdigit():
@@ -74,30 +94,30 @@ def delete(todo:str, all:bool=False, done:bool=False):
             todos.clear()
             save_todo(todos)
             print("[-] 모든 todo를 삭제하였습니다")
-        except Exception as e:
-            error_func(e)
+        except:
+            error_func()
     elif done:
         try:
             todos = [todo for todo in todos if not todo["done"]]
             save_todo(todos)
             print("[-] 완료된 todo를 삭제하였습니다")
-        except Exception as e:
-            error_func(e)
+        except:
+            error_func()
     else:
         if isinstance(todo, int):
             try:
                 todos.pop(todo - 1)
                 save_todo(todos)
                 print("[-] todo를 삭제하였습니다")
-            except Exception as e:
-                error_func(e)
+            except:
+                error_func()
         elif isinstance(todo, str):
             try:
                 todos = [item for item in todos if item["task"] != todo]
                 save_todo(todos)
                 print("[-] todo를 삭제하였습니다")
-            except Exception as e:
-                error_func(e)
+            except:
+                error_func()
 
 
 def done(todo:str):
@@ -120,8 +140,8 @@ def done(todo:str):
                 print("[+] 상태를 변경하였습니다")
         else:
             print("[!] 잘못된 값입니다")
-    except Exception as e:
-        error_func(e)
+    except:
+        error_func()
 
 
 def exit():
