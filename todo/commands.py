@@ -3,46 +3,37 @@ import sys
 import json
 import traceback
 import logging
+from pathlib import Path
 
-LOG_FOLDER = "logs"
-STORAGE_FILE = "todo/storage.json"
-
-def make_log():
-    os.makedirs(LOG_FOLDER, exist_ok=True)
-
-    log_file = os.path.join(LOG_FOLDER, "app.log")
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    # 중복 핸들러 방지
-    if not logger.handlers:
-        file_handler = logging.FileHandler(log_file)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-
+BASE_DIR = Path(__file__).resolve().parent
+PARENT_DIR = BASE_DIR.parent
+STORAGE_FILE = PARENT_DIR/"storage/storage.json"
 
 def error_func():
-    print("[!] 오류발생")
+    """에러 함수"""
+    print("[!] Error, plz check log")
     logging.error(traceback.format_exc())
 
 
-def load_todo():
-    if os.path.exists(STORAGE_FILE):
-        with open(STORAGE_FILE, "r", encoding="utf-8") as f:
-            try:
-                return json.load(f)
-            except json.JSONDecodeError:
-                return []
+def storage_func(isSave:bool=False, todo=None):
+    """storage.json 불러오는 함수
+
+    Returns:
+        list: todo list 반환
+    """
+    if isSave:
+        with open(STORAGE_FILE, "w", encoding="utf-8") as f:
+            json.dump(todo, f, ensure_ascii=False, indent=2)
     else:
-        return []
-
-
-def save_todo(todo:list):
-    with open(STORAGE_FILE, "w", encoding="utf-8") as f:
-        json.dump(todo, f, ensure_ascii=False, indent=2)
+        if os.path.exists(STORAGE_FILE):
+            with open(STORAGE_FILE, "r", encoding="utf-8") as f:
+                try:
+                    return json.load(f)
+                except json.JSONDecodeError:
+                    return []
+        else:
+            return []
+    
 
 
 def greeting():
@@ -61,7 +52,7 @@ exit    | 프로그램을 종료합니다 ( exit )""")
 
 
 def ls():
-    todos = load_todo()
+    todos = storage_func()
     if len(todos):
         print("{:<10}{:<10}{:<10}".format("number", "status", "task"))
         print("---------------------------")
@@ -74,9 +65,9 @@ def ls():
 
 def add(todo:list):
     try:
-        todos = load_todo()
+        todos = storage_func()
         todos.append({"task": todo, "done": False})
-        save_todo(todos)
+        storage_func(isSave=True, todo=todos)
         print("[+] todo를 추가했습니다")
     except:
         error_func()   
@@ -84,7 +75,7 @@ def add(todo:list):
 
 def delete(todo:str, all:bool=False, done:bool=False):
     # del 없는 todo 지우려고 할 때 [!] todo가 없습니다 뜨게 로직 바꾸기
-    todos = load_todo()
+    todos = storage_func()
     
     if todo.isdigit():
         todo = int(todo)
@@ -92,14 +83,14 @@ def delete(todo:str, all:bool=False, done:bool=False):
     if all:
         try:
             todos.clear()
-            save_todo(todos)
+            storage_func(isSave=True, todo=todos)
             print("[-] 모든 todo를 삭제하였습니다")
         except:
             error_func()
     elif done:
         try:
             todos = [todo for todo in todos if not todo["done"]]
-            save_todo(todos)
+            storage_func(isSave=True, todo=todos)
             print("[-] 완료된 todo를 삭제하였습니다")
         except:
             error_func()
@@ -107,21 +98,21 @@ def delete(todo:str, all:bool=False, done:bool=False):
         if isinstance(todo, int):
             try:
                 todos.pop(todo - 1)
-                save_todo(todos)
+                storage_func(isSave=True, todo=todos)
                 print("[-] todo를 삭제하였습니다")
             except:
                 error_func()
         elif isinstance(todo, str):
             try:
                 todos = [item for item in todos if item["task"] != todo]
-                save_todo(todos)
+                storage_func(isSave=True, todo=todos)
                 print("[-] todo를 삭제하였습니다")
             except:
                 error_func()
 
 
-def done(todo:str):
-    todos = load_todo()
+def done(todo):
+    todos = storage_func()
     
     if todo.isdigit():
         todo = int(todo)
@@ -129,15 +120,15 @@ def done(todo:str):
     try:
         if isinstance(todo, int) and 0 <= todo - 1 < len(todos):
             todos[todo - 1]["done"] = not todos[todo - 1]["done"]
-            save_todo(todos)
+            storage_func(isSave=True, todo=todos)
             print("[+] 상태를 변경하였습니다")
         elif isinstance(todo, str):
             for item in todos:
                 if item["task"] == todo:
                     item["done"] = not item["done"]
                     break
-                save_todo(todos)
-                print("[+] 상태를 변경하였습니다")
+            storage_func(isSave=True, todo=todos)
+            print("[+] 상태를 변경하였습니다")
         else:
             print("[!] 잘못된 값입니다")
     except:
