@@ -1,9 +1,8 @@
 \__pycache__
 *.pyc
 
-.requirements_installed
-
-storage.json
+\storage
+*.json
 
 \logs
 *.log
